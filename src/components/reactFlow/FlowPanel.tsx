@@ -5,6 +5,7 @@ import ReactFlow, { Background, Controls, MiniMap, Node, NodeTypes, ReactFlowIns
 import InputNode from './Nodes/InputNode';
 import { useCallback, useRef, useState } from 'react';
 import PanelTypes from '../panels/PanelTypes';
+import InputModal from '../modals/InputModal';
 
 const nodeTypes: NodeTypes = {
   inputNode: InputNode,
@@ -14,10 +15,11 @@ let id = 0;
 const getId = () => `Node_${id++}`;
 
 const FlowPanel = () => {
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode } = useStore();
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode } = useStore();
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
 
+  console.log(nodes)
 
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -45,6 +47,7 @@ const FlowPanel = () => {
         data: {
           label: string;
           description?: string;
+          trigger?: string;
           variables?: [];
           time?: {
             units: string,
@@ -68,7 +71,11 @@ const FlowPanel = () => {
         },
       }
 
-      if (type === 'defaultNode' || type === 'inputNode' || type === 'outputNode') {
+      if (type === 'inputNode') {
+        baseNode.data.description = '';
+        baseNode.data.variables = [];
+        baseNode.data.trigger = ''
+      } else if (type === 'defaultNode' || type === 'outputNode') {
         baseNode.data.description = '';
         baseNode.data.variables = [];
       } else if (type === 'tymeNode') {
@@ -88,6 +95,11 @@ const FlowPanel = () => {
     [addNode, reactFlowInstance]
   );
 
+  const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    selectNode(node); 
+  };
+
   return (
     <div className="flex w-full h-full items-center gap-2" ref={reactFlowWrapper}>
       <ReactFlow
@@ -99,6 +111,7 @@ const FlowPanel = () => {
         onInit={setReactFlowInstance}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
       >
         <MiniMap />
@@ -110,6 +123,7 @@ const FlowPanel = () => {
         <div className='py-4 border rounded-lg border-[#6f62e8] w-64 overflow-hidden'>
           <PanelTypes />
         </div>
+        <InputModal />
       </div>
     </div>
   )
