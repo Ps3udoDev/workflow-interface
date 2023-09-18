@@ -10,11 +10,14 @@ import DefaultNode from './Nodes/DefaultNode';
 import DefaultModal from '../modals/DefaultModal';
 import OutputNode from './Nodes/OutputNode';
 import OutputModal from '../modals/OutputModal';
+import TimeModal from '../modals/TimeModal';
+import TimeNode from './Nodes/TimeNode';
 
 const nodeTypes: NodeTypes = {
   inputNode: InputNode,
   defaultNode: DefaultNode,
-  outputNode: OutputNode
+  outputNode: OutputNode,
+  timeNode: TimeNode
 }
 
 let id = 0;
@@ -132,6 +135,7 @@ const FlowPanel = () => {
         <InputModal />
         <DefaultModal />
         <OutputModal />
+        <TimeModal />
       </div>
     </div>
   )
