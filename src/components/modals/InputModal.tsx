@@ -182,9 +182,10 @@ const InputModal = () => {
             className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] rounded-md h-6'
             onChange={(evt) => setNodeState({ ...nodeState, trigger: evt.target.value })}
           >
-            <option value='text'>CRM</option>
-            <option value='text'>ALM</option>
-            <option value='text'>ATS</option>
+            <option value="">Select type of trigger</option>
+            <option value='CRM'>CRM</option>
+            <option value='ALM'>ALM</option>
+            <option value='ATS'>ATS</option>
           </select>
         </div>
         <div className='overflow-auto px-6 flex flex-col gap-3'>

@@ -3,32 +3,23 @@ import useStore from "../../store/store";
 import { useEffect, useState } from "react";
 import { Node } from "reactflow";
 import Modal from "./Modal";
-import { MdDelete } from 'react-icons/md'
-import useDefaultModal from "../../hooks/useDefaultModal";
-
-interface NodeVariable {
-  name: string;
-  value: string;
-  type: string;
-}
+import useOutputModal from '../../hooks/useOutputModal';
 
 interface NodeState {
   label: string;
   background: string | number;
   hidden: boolean;
-  variables: NodeVariable[];
   description: string;
 }
-const DefaultModal = () => {
+const OutputModal = () => {
   const { selectedNode, updateNode, getPropsOfParentNodes } = useStore()
-  const defaultModal = useDefaultModal();
+  const outputModal = useOutputModal();
   const { handleSubmit, reset } = useForm();
 
   const initialNodeState: NodeState = {
     label: selectedNode?.data.label || '',
     background: selectedNode?.style?.background || '#27282c',
     hidden: selectedNode?.hidden || false,
-    variables: selectedNode?.data.variables || [],
     description: selectedNode?.data.description || '',
   };
 
@@ -41,7 +32,6 @@ const DefaultModal = () => {
         data: {
           ...selectedNode.data,
           label: nodeState.label,
-          variables: nodeState.variables,
           description: nodeState.description,
         },
         style: {
@@ -54,66 +44,12 @@ const DefaultModal = () => {
     }
   });
 
-  const handleAddVariable = () => {
-    const nextVariableIndex = nodeState.variables.length + 1;
-    const newVariable = {
-      name: `Variable ${nextVariableIndex}`,
-      value: '',
-    };
-
-    setNodeState((prevState) => ({
-      ...prevState,
-      variables: [...prevState.variables, newVariable],
-    }));
-  };
-
-  const handleVariableChange = (index: number, value: string) => {
-    const updatedVariables = [...nodeState.variables];
-    updatedVariables[index].value = value;
-    setNodeState((prevState) => ({
-      ...prevState,
-      variables: updatedVariables,
-    }));
-  };
-
-  const handleVariableNameChange = (index: number, newName: string) => {
-    const updatedVariables = [...nodeState.variables];
-    updatedVariables[index].name = newName;
-    setNodeState((prevState) => ({
-      ...prevState,
-      variables: updatedVariables,
-    }));
-  };
-
-  const handleRemoveVariable = (index: number) => {
-    const updatedVariables = [...nodeState.variables];
-    updatedVariables.splice(index, 1);
-    setNodeState((prevState) => ({
-      ...prevState,
-      variables: updatedVariables,
-    }));
-  };
-
   const onChange = (open: boolean) => {
     if (!open) {
       reset();
-      defaultModal.onClose();
+      outputModal.onClose();
     }
   };
-
-  const handleVariableTypeChange = (index: number, newType) => {
-    // Aquí puedes manejar el cambio de tipo de variable y ajustar los datos en consecuencia
-    const updatedVariables = [...nodeState.variables];
-    updatedVariables[index].type = newType;
-    // Ajustar el valor de la variable según el nuevo tipo si es necesario
-    if (newType === 'number') {
-      updatedVariables[index].value = parseFloat(updatedVariables[index].value) | 0;
-    } else if (newType === 'boolean') {
-      updatedVariables[index].value = updatedVariables[index].value === 'true';
-    }
-    setNodeState({ ...nodeState, variables: updatedVariables });
-  };
-
 
   const parentNodesVariables = getPropsOfParentNodes(selectedNode?.id);
 
@@ -122,7 +58,6 @@ const DefaultModal = () => {
       label: selectedNode?.data.label || '',
       background: selectedNode?.style?.background || '#27282c',
       hidden: selectedNode?.hidden || false,
-      variables: selectedNode?.data.variables || [],
       description: selectedNode?.data.description || '',
     };
     setNodeState(updatedNodeState);
@@ -132,7 +67,7 @@ const DefaultModal = () => {
     <Modal
       title='Properties'
       description={`Edit Node Properties ${selectedNode?.data.label}`}
-      isOpen={defaultModal.isOpen}
+      isOpen={outputModal.isOpen}
       onChange={onChange}
     >
       <form onSubmit={handleUpdateClick} className='flex flex-col w-[450px] max-h-[600px] h-auto'>
@@ -166,39 +101,6 @@ const DefaultModal = () => {
           </label>
           <textarea className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full max-h-32 h-28 rounded-md' name="descriptionNode" onChange={(evt) => setNodeState({ ...nodeState, description: evt.target.value })} placeholder={selectedNode?.data['description']}></textarea>
         </div>
-        <div className='overflow-auto px-6 flex flex-col gap-3'>
-          <h2 className='text-sm font-semibold text-white'>Variables</h2>
-          {nodeState.variables.map((variable, index) => (
-            <div key={index} className='flex gap-1 border border-green-400'>
-              <select
-                className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] rounded-md h-6'
-                onChange={(evt) => handleVariableTypeChange(index, evt.target.value)}
-              >
-                <option value='text'>Text</option>
-                <option value='number'>Number</option>
-                <option value='boolean'>Boolean</option>
-              </select>
-              <input
-                className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] rounded-md h-6'
-                placeholder={variable.name}
-                onChange={(evt) => handleVariableNameChange(index, evt.target.value)}
-              />
-              :
-              <input
-                className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] rounded-md h-6'
-                placeholder={variable.value}
-                onChange={(evt) => handleVariableChange(index, evt.target.value)}
-              />
-              <button
-                className='text-red-600  rounded-xl text-xl border border-blue-500 m-0'
-                onClick={() => handleRemoveVariable(index)}
-              >
-                <MdDelete />
-              </button>
-            </div>
-          ))}
-
-        </div>
         {parentNodesVariables.length > 0 && (
           <div className='px-6 text-white overflow-auto max-h-[250px] py-3'>
             <h2 className='text-sm font-semibold'>Parent Node Variables</h2>
@@ -216,7 +118,6 @@ const DefaultModal = () => {
           </div>
         )}
         <div className='flex flex-col gap-2 py-2'>
-          <button className='text-white bg-[#6f62e8] rounded-xl w-36 m-auto' onClick={handleAddVariable}>Add Variable</button>
           <button className='text-white bg-[#6f62e8] rounded-xl w-36 m-auto'>Update Node</button>
         </div>
       </form>
@@ -224,4 +125,4 @@ const DefaultModal = () => {
   )
 }
 
-export default DefaultModal
+export default OutputModal
