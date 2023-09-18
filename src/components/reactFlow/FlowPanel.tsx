@@ -7,11 +7,14 @@ import { useCallback, useRef, useState } from 'react';
 import PanelTypes from '../panels/PanelTypes';
 import InputModal from '../modals/InputModal';
 import DefaultNode from './Nodes/DefaultNode';
-import DefaultModal from '../modals/defaultModal';
+import DefaultModal from '../modals/DefaultModal';
+import OutputNode from './Nodes/OutputNode';
+import OutputModal from '../modals/OutputModal';
 
 const nodeTypes: NodeTypes = {
   inputNode: InputNode,
-  defaultNode: DefaultNode
+  defaultNode: DefaultNode,
+  outputNode: OutputNode
 }
 
 let id = 0;
@@ -128,6 +131,7 @@ const FlowPanel = () => {
         </div>
         <InputModal />
         <DefaultModal />
+        <OutputModal />
       </div>
     </div>
   )
