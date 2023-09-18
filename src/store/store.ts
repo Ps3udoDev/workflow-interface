@@ -1,4 +1,5 @@
-import { create } from 'zustand'
+import { createWithEqualityFn } from 'zustand/traditional'
+  import { shallow } from 'zustand/shallow'
 
 import {
   Connection,
@@ -26,7 +27,7 @@ type RFState = {
   onConnect: OnConnect;
 }
 
-const useStore = create<RFState>((set, get) => ({
+const useStore = createWithEqualityFn<RFState>((set, get) => ({
   nodes: initialNodes,
   edges: initialEdges,
   onNodesChange: (changes: NodeChange[]) => {
@@ -43,8 +44,8 @@ const useStore = create<RFState>((set, get) => ({
     set({
       edges: addEdge(connection, get().edges),
     });
-  },
-}))
+  }
+}), shallow)
 
 
 export default useStore;
