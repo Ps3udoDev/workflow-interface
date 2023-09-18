@@ -28,7 +28,7 @@ const PanelTypes = () => {
           <p className="text-xs text-center text-white">Branch Node</p>
            <FaCodeBranch className="text-xl text-[#FFA500]"  />
         </div>
-        <div className="h-16 p-1 border border-solid border-[#6f62e8] rounded-lg flex  justify-center items-center cursor-grab gap-2" onDragStart={(event) => onDragStart(event, 'tymeNode')} draggable>
+        <div className="h-16 p-1 border border-solid border-[#6f62e8] rounded-lg flex  justify-center items-center cursor-grab gap-2" onDragStart={(event) => onDragStart(event, 'timeNode')} draggable>
           <p className="text-xs text-center text-white">Time Node</p>
            <BiSolidTimeFive className="text-xl text-[#90EE90]"  />
         </div>
