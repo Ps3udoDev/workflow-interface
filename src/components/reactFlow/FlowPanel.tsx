@@ -6,9 +6,12 @@ import InputNode from './Nodes/InputNode';
 import { useCallback, useRef, useState } from 'react';
 import PanelTypes from '../panels/PanelTypes';
 import InputModal from '../modals/InputModal';
+import DefaultNode from './Nodes/DefaultNode';
+import DefaultModal from '../modals/defaultModal';
 
 const nodeTypes: NodeTypes = {
   inputNode: InputNode,
+  defaultNode: DefaultNode
 }
 
 let id = 0;
@@ -124,6 +127,7 @@ const FlowPanel = () => {
           <PanelTypes />
         </div>
         <InputModal />
+        <DefaultModal />
       </div>
     </div>
   )
