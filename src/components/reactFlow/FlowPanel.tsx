@@ -1,5 +1,4 @@
 import 'reactflow/dist/style.css';
-
 import useStore from '../../store/store';
 import ReactFlow, { Background, Controls, MiniMap, Node, NodeTypes, ReactFlowInstance } from 'reactflow';
 import InputNode from './Nodes/InputNode';
@@ -12,12 +11,17 @@ import OutputNode from './Nodes/OutputNode';
 import OutputModal from '../modals/OutputModal';
 import TimeModal from '../modals/TimeModal';
 import TimeNode from './Nodes/TimeNode';
+import BranchNode from './Nodes/BranchNode';
+import BranchModal from '../modals/BranchModal';
+import ConditionalSubnode from './Nodes/ConditionalNode';
 
 const nodeTypes: NodeTypes = {
   inputNode: InputNode,
   defaultNode: DefaultNode,
   outputNode: OutputNode,
-  timeNode: TimeNode
+  timeNode: TimeNode,
+  branchNode: BranchNode,
+  conditionalSubnode: ConditionalSubnode
 }
 
 let id = 0;
@@ -77,6 +81,7 @@ const FlowPanel = () => {
           background: '#27282c',
           borderRadius: '6px',
           border: 'solid 1px #6f62e8',
+          height: 50
         },
       }
 
@@ -136,6 +141,7 @@ const FlowPanel = () => {
         <DefaultModal />
         <OutputModal />
         <TimeModal />
+        <BranchModal />
       </div>
     </div>
   )

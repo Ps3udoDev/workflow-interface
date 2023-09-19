@@ -27,12 +27,6 @@ const InputNode: FunctionComponent<NodeProps> = memo(({ data, isConnectable }) =
         <h1 className='text-center text-base py-3 px-6 font-bold flex items-center gap-3'>
           {data?.label}
         </h1>
-        {data?.trigger.length !== 0 ? (
-          <div className='border-t border-gray-600'>
-            <h2>Trigger:</h2>
-            <p className='max-w-[120px] break-words'>{data?.trigger}</p>
-          </div>
-        ) : null}
         {data?.description.length !== 0 ? (
           <div className='border-t border-gray-600 px-3'>
             <h2>Description:</h2>
