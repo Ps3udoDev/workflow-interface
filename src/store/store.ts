@@ -39,11 +39,13 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
+    localStorage.setItem('nodes', JSON.stringify(get().nodes));
   },
   onEdgesChange: (changes: EdgeChange[]) => {
     set({
       edges: applyEdgeChanges(changes, get().edges),
     });
+    
   },
   onConnect: (connection: Connection) => {
     const newEdge = {
@@ -53,6 +55,7 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
     set({
       edges: addEdge(newEdge, get().edges),
     });
+    localStorage.setItem('edges', JSON.stringify(get().edges));
   },
   addNode: (newNode: Node) => {
     set((state) => ({

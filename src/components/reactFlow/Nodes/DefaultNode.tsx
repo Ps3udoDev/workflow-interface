@@ -1,18 +1,18 @@
 
 import { FunctionComponent, memo } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
-import useInputModal from '../../../hooks/useInputModal';
+import useDefaultModal from '../../../hooks/useDefaultModal';
 
 type VariableNode = {
   name: string
   value: undefined
 }
 
-const InputNode: FunctionComponent<NodeProps> = memo(({ data, isConnectable }) => {
-  const inputModal = useInputModal();
+const DefaultNode: FunctionComponent<NodeProps> = memo(({ data, isConnectable }) => {
+  const defaultModal = useDefaultModal();
 
   const openInputModal = () => {
-    inputModal.onOpen();
+    defaultModal.onOpen();
   }
 
   const handleDoubleClick = () => {
@@ -20,6 +20,12 @@ const InputNode: FunctionComponent<NodeProps> = memo(({ data, isConnectable }) =
   }
   return (
     <>
+    <Handle
+        type="target"
+        position={Position.Top}
+        onConnect={(params) => console.log('handle onConnect', params)}
+        isConnectable={isConnectable}
+      />
       <div
         className='rounded-md text-xs text-center text-white'
         onDoubleClick={handleDoubleClick}
@@ -56,4 +62,4 @@ const InputNode: FunctionComponent<NodeProps> = memo(({ data, isConnectable }) =
   )
 })
 
-export default InputNode
+export default DefaultNode;

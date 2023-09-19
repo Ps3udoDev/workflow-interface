@@ -1,12 +1,10 @@
-import useInputModal from "../../hooks/useInputModal";
 import { useForm } from 'react-hook-form';
 import useStore from "../../store/store";
 import { useEffect, useState } from "react";
 import { Node } from "reactflow";
 import Modal from "./Modal";
 import { MdDelete } from 'react-icons/md'
-
-
+import useDefaultModal from "../../hooks/useDefaultModal";
 
 interface NodeVariable {
   name: string;
@@ -20,11 +18,10 @@ interface NodeState {
   hidden: boolean;
   variables: NodeVariable[];
   description: string;
-  trigger: string;
 }
-const InputModal = () => {
+const DefaultModal = () => {
   const { selectedNode, updateNode, getPropsOfParentNodes } = useStore()
-  const inputModal = useInputModal();
+  const defaultModal = useDefaultModal();
   const { handleSubmit, reset } = useForm();
 
   const initialNodeState: NodeState = {
@@ -33,7 +30,6 @@ const InputModal = () => {
     hidden: selectedNode?.hidden || false,
     variables: selectedNode?.data.variables || [],
     description: selectedNode?.data.description || '',
-    trigger: selectedNode?.data.trigger || ''
   };
 
   const [nodeState, setNodeState] = useState<NodeState>(initialNodeState);
@@ -47,7 +43,6 @@ const InputModal = () => {
           label: nodeState.label,
           variables: nodeState.variables,
           description: nodeState.description,
-          trigger: nodeState.trigger,
         },
         style: {
           ...selectedNode.style,
@@ -102,7 +97,7 @@ const InputModal = () => {
   const onChange = (open: boolean) => {
     if (!open) {
       reset();
-      inputModal.onClose();
+      defaultModal.onClose();
     }
   };
 
@@ -129,7 +124,6 @@ const InputModal = () => {
       hidden: selectedNode?.hidden || false,
       variables: selectedNode?.data.variables || [],
       description: selectedNode?.data.description || '',
-      trigger: selectedNode?.data.trigger || 'CRM'
     };
     setNodeState(updatedNodeState);
   }, [selectedNode]);
@@ -138,7 +132,7 @@ const InputModal = () => {
     <Modal
       title='Properties'
       description={`Edit Node Properties ${selectedNode?.data.label}`}
-      isOpen={inputModal.isOpen}
+      isOpen={defaultModal.isOpen}
       onChange={onChange}
     >
       <form onSubmit={handleUpdateClick} className='flex flex-col w-[450px] max-h-[600px] h-auto'>
@@ -152,8 +146,6 @@ const InputModal = () => {
             onChange={(evt) => (setNodeState({ ...nodeState, label: evt.target.value }))}
             placeholder={selectedNode?.data['label']} />
         </div>
-
-
         <div className='py-2 px-6 flex  items-center justify-start gap-3'>
           <div className='flex items-center gap-3'>
             <label htmlFor="nameNode" className='text-sm font-semibold text-white'>
@@ -173,20 +165,6 @@ const InputModal = () => {
             Description:
           </label>
           <textarea className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full max-h-32 h-28 rounded-md' name="descriptionNode" onChange={(evt) => setNodeState({ ...nodeState, description: evt.target.value })} placeholder={selectedNode?.data['description']}></textarea>
-        </div>
-        <div className='py-2 px-6 flex flex-col gap-1'>
-          <label htmlFor="trigger" className='text-sm font-semibold text-white'>
-            Trigger:
-          </label>
-          <select
-            className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] rounded-md h-6'
-            onChange={(evt) => setNodeState({ ...nodeState, trigger: evt.target.value })}
-          >
-            <option value="">Select type of trigger</option>
-            <option value='CRM'>CRM</option>
-            <option value='ALM'>ALM</option>
-            <option value='ATS'>ATS</option>
-          </select>
         </div>
         <div className='overflow-auto px-6 flex flex-col gap-3'>
           <h2 className='text-sm font-semibold text-white'>Variables</h2>
@@ -246,4 +224,4 @@ const InputModal = () => {
   )
 }
 
-export default InputModal
+export default DefaultModal
