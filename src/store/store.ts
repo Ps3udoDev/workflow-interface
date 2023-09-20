@@ -1,5 +1,7 @@
 import { createWithEqualityFn } from 'zustand/traditional'
 import { shallow } from 'zustand/shallow'
+import { createMachine } from 'xstate';
+
 
 import {
   Connection,
@@ -26,10 +28,11 @@ type RFState = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   addNode: (node: Node) => void
-  updateNode: (node: Node)=> void
+  updateNode: (node: Node) => void
   selectedNode: Node | null,
   selectNode: (node: Node | null) => void
   getPropsOfParentNodes: (childNodeId: string | undefined) => object[]
+  conversionToXstateCode: () => void
 }
 
 const useStore = createWithEqualityFn<RFState>((set, get) => ({
@@ -45,7 +48,7 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
     set({
       edges: applyEdgeChanges(changes, get().edges),
     });
-    
+
   },
   onConnect: (connection: Connection) => {
     const newEdge = {
@@ -85,6 +88,37 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
 
     return parentNodeProps;
   },
+  conversionToXstateCode: () => {
+    const nodes = get().nodes
+    const edges = get().edges
+
+    const states = {}
+
+    nodes.forEach(node => {
+      states[node.data.label] = {};
+    });
+
+    edges.forEach(edge => {
+      const { source, target } = edge;
+
+      const transition = `${source}_${target}`.replace(/-/g, '_');
+
+      if (!states[source].on) {
+        states[source].on = {};
+      }
+
+      states[source].on[transition] = target;
+    })
+
+    const machine = createMachine({
+      id: 'workflow',
+      initial: nodes[0].data.label,
+      states,
+    });
+    const code = machine.config;
+
+    return JSON.stringify(code, null, 2);
+  }
 }), shallow)
 
 

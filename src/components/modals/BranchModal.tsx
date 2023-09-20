@@ -5,6 +5,7 @@ import { Node } from "reactflow";
 import Modal from "./Modal";
 import useBranchModal from '../../hooks/useBranchModal';
 import QueryBuilderPanel from '../panels/QueryBuilderPanel';
+import { queryType } from '../../utils/types';
 
 interface NodeState {
   label: string;
@@ -22,7 +23,7 @@ interface Field {
 let id = 0;
 
 const BranchModal = () => {
-  const { selectedNode, updateNode, getPropsOfParentNodes, addNode } = useStore()
+  const { selectedNode, updateNode, getPropsOfParentNodes } = useStore()
   const branchModal = useBranchModal();
   const { handleSubmit, reset } = useForm();
   const [query, setQuery] = useState<string>('');
@@ -69,79 +70,22 @@ const BranchModal = () => {
     setQuery(newQuery);
   };
 
-  /* const onAddClick = (event) => {
+  const onAddClick = (event: React.MouseEvent) => {
     event.preventDefault();
-
-    const parentId = selectedNode?.id;
-    const newNode:Node = {
-      id: `${parentId}.${id++}`,
-      type: 'conditionalSubnode',
-      data: { label: 'Added node', variables: [],query: query },
-      style: {
-        background: '#27282c',
-        borderRadius: '6px',
-        border: 'solid 1px #6f62e8'
-      },
-      position: {
-        x: 0,
-        y: 0,
-      },
-      parentNode: parentId,
-      extent: 'parent',
-    };
-
-    addNode(newNode)
-  }; */
-  const onAddClick = (event) => {
-    event.preventDefault();
-
-    const parentId = selectedNode?.id;
-
-    const newNode = {
-      id: `${parentId}.${id++}`,
-      type: 'conditionalSubnode',
-      data: { label: 'Added node', variables: [], query: query },
-      style: {
-        background: '#27282c',
-        borderRadius: '6px',
-        border: 'solid 1px #6f62e8',
-      },
-      position: {
-        x: 0,
-        y: 0,
-      },
-      height: 200,
-      parentNode: parentId,
-      extent: 'parent',
-    };
-   // const cantidadDeNodosHijos = id;
-
-    // Agrega el nuevo nodo primero
-    addNode(newNode);
-
-    // Luego, incrementa la cantidad de nodos hijos en el nodo padre
-   /*  if (selectedNode) {
+    const newQuery: queryType = {
+      id: `query_${id++}`,
+      query,
+    }
+    if (selectedNode) {
       updateNode({
         ...selectedNode,
         data: {
           ...selectedNode?.data,
-          childCount: cantidadDeNodosHijos,
-        },
-      });
+          query: [...selectedNode.data.query, newQuery]
+        }
+      })
     }
-    const newHeigth = selectedNode?.style?.height * cantidadDeNodosHijos
-    if (selectedNode) {
-      updateNode({
-        ...selectedNode,
-        style: {
-          ...selectedNode?.style,
-          height: newHeigth,
-        },
-      });
-    } */
   };
-
-
 
   function convertVariablesToFields(data: object[]): Field[] {
     const fields: Field[] = [];
@@ -170,7 +114,6 @@ const BranchModal = () => {
     };
     setNodeState(updatedNodeState);
   }, [selectedNode]);
-
 
   return (
     <Modal

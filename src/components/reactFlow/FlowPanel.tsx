@@ -2,7 +2,7 @@ import 'reactflow/dist/style.css';
 import useStore from '../../store/store';
 import ReactFlow, { Background, Controls, MiniMap, Node, NodeTypes, ReactFlowInstance } from 'reactflow';
 import InputNode from './Nodes/InputNode';
-import { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import PanelTypes from '../panels/PanelTypes';
 import InputModal from '../modals/InputModal';
 import DefaultNode from './Nodes/DefaultNode';
@@ -13,7 +13,6 @@ import TimeModal from '../modals/TimeModal';
 import TimeNode from './Nodes/TimeNode';
 import BranchNode from './Nodes/BranchNode';
 import BranchModal from '../modals/BranchModal';
-import ConditionalSubnode from './Nodes/ConditionalNode';
 
 const nodeTypes: NodeTypes = {
   inputNode: InputNode,
@@ -21,14 +20,13 @@ const nodeTypes: NodeTypes = {
   outputNode: OutputNode,
   timeNode: TimeNode,
   branchNode: BranchNode,
-  conditionalSubnode: ConditionalSubnode
 }
 
 let id = 0;
 const getId = () => `Node_${id++}`;
 
 const FlowPanel = () => {
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode } = useStore();
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode, conversionToXstateCode } = useStore();
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
 
@@ -66,7 +64,8 @@ const FlowPanel = () => {
             units: string,
             value: string
           };
-          query?: string;
+          query?: [];
+          childNodeCount?: number;
         }
       }
 
@@ -81,7 +80,6 @@ const FlowPanel = () => {
           background: '#27282c',
           borderRadius: '6px',
           border: 'solid 1px #6f62e8',
-          height: 50
         },
       }
 
@@ -98,8 +96,8 @@ const FlowPanel = () => {
           value: '',
         };
       } else {
-        baseNode.data.variables = [];
-        baseNode.data.query = '';
+        baseNode.data.query = [];
+        baseNode.data.childNodeCount = 0;
       }
 
       const newNode = { ...baseNode };
@@ -113,6 +111,12 @@ const FlowPanel = () => {
     event.preventDefault();
     selectNode(node); 
   };
+
+ const handleConversionXstateCode = (event: React.MouseEvent) =>{
+  event.preventDefault();
+  const code = conversionToXstateCode()
+  console.log('this is the conversion',code)
+ }
 
   return (
     <div className="flex w-full h-full items-center gap-2" ref={reactFlowWrapper}>
@@ -136,6 +140,7 @@ const FlowPanel = () => {
       <div className='h-screen px-4 flex flex-col items-center justify-center gap-3'>
         <div className='py-4 border rounded-lg border-[#6f62e8] w-64 overflow-hidden'>
           <PanelTypes />
+          <button onClick={handleConversionXstateCode}>convert</button>
         </div>
         <InputModal />
         <DefaultModal />
