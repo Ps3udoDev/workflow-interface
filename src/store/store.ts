@@ -19,6 +19,7 @@ import {
 
 import initialNodes from './nodes'
 import initialEdges from './edges'
+import { States } from '../utils/types';
 
 
 type RFState = {
@@ -92,32 +93,31 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
     const nodes = get().nodes
     const edges = get().edges
 
-    const states = {}
+    const states: States = {};
 
     nodes.forEach(node => {
-      states[node.data.label] = {};
+      states[node.id] = {};
     });
 
     edges.forEach(edge => {
-      const { source, target } = edge;
-
-      const transition = `${source}_${target}`.replace(/-/g, '_');
-
+      const { source, target } = edge;    
+      const transitionName = `${source}_${target}`.replace(/-/g, '_');
+      
       if (!states[source].on) {
         states[source].on = {};
       }
-
-      states[source].on[transition] = target;
-    })
+      
+      states[source].on[transitionName] = target;
+    });
 
     const machine = createMachine({
       id: 'workflow',
-      initial: nodes[0].data.label,
+      initial: nodes[0].id,
       states,
     });
-    const code = machine.config;
 
-    return JSON.stringify(code, null, 2);
+    const code = machine.config;
+    localStorage.setItem('machine', JSON.stringify(code, null, 2));
   }
 }), shallow)
 

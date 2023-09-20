@@ -4,7 +4,12 @@ export default [
   {
     id: 'Node_init',
     type: 'inputNode',
-    data: { label: 'Node_1', variables: [], description: '' },
+    data: {
+      label: 'Node_1',
+      variables: [],
+      description: '',
+      stateType: 'atomic'
+    },
     position: { x: 250, y: 25 },
     style: {
       background: '#27282c',

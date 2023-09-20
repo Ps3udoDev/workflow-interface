@@ -174,7 +174,7 @@ const InputModal = () => {
           </label>
           <textarea className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full max-h-32 h-28 rounded-md' name="descriptionNode" onChange={(evt) => setNodeState({ ...nodeState, description: evt.target.value })} placeholder={selectedNode?.data['description']}></textarea>
         </div>
-        <div className='py-2 px-6 flex flex-col gap-1'>
+        {/* <div className='py-2 px-6 flex flex-col gap-1'>
           <label htmlFor="trigger" className='text-sm font-semibold text-white'>
             Trigger:
           </label>
@@ -187,7 +187,7 @@ const InputModal = () => {
             <option value='ALM'>ALM</option>
             <option value='ATS'>ATS</option>
           </select>
-        </div>
+        </div> */}
         <div className='overflow-auto px-6 flex flex-col gap-3'>
           <h2 className='text-sm font-semibold text-white'>Variables</h2>
           {nodeState.variables.map((variable, index) => (

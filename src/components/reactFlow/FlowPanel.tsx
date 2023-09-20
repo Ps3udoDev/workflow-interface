@@ -109,14 +109,13 @@ const FlowPanel = () => {
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
     event.preventDefault();
-    selectNode(node); 
+    selectNode(node);
   };
 
- const handleConversionXstateCode = (event: React.MouseEvent) =>{
-  event.preventDefault();
-  const code = conversionToXstateCode()
-  console.log('this is the conversion',code)
- }
+  const handleConversionXstateCode = (event: React.MouseEvent) => {
+    event.preventDefault();
+    conversionToXstateCode()
+  }
 
   return (
     <div className="flex w-full h-full items-center gap-2" ref={reactFlowWrapper}>
