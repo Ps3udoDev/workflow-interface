@@ -1,27 +1,25 @@
-# React + TypeScript + Vite
+# Workflow Interface
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+## Tabla de Contenidos
+- [Workflow Interface](#workflow-interface)
+  - [Tabla de Contenidos](#tabla-de-contenidos)
+  - [Descripción](#descripción)
+  - [Instalación](#instalación)
+  - [Uso](#uso)
+  - [Capturas de Pantalla](#capturas-de-pantalla)
+  
+## Descripción
+Esta interfaz se encarga de representar workflows mediante el uso de React Flow. Cuenta con diferentes nodos, los cuales son de diferentes tipos y tienen diversas funcionalidades. Una vez terminado de diseñar el workflow, este puede ser exportado a código XState para su posterior almacenamiento en una base de datos. Además, cuenta con la funcionalidad para hacer la reconversión de código XState a React Flow.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+## Instalación
+Para instalar el proyecto basta con hacer un git clone del repositorio y posteriormente ejecutar el comando `yarn`.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Uso
+El uso del proyecto para poder ejecutarlo es mediante el comando `yarn run dev`.
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+## Capturas de Pantalla
+Para añadir capturas de pantalla en tu README, primero debes subir las imágenes a una carpeta en tu repositorio de GitHub. Luego, puedes referenciarlas en tu README usando la siguiente sintaxis:
+```markdown ![Descripción de la Imagen](URL_de_la_imagen)
 ```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list

@@ -17,12 +17,12 @@ const QueryBuilderPanel:React.FC<QueryProps> = ({fields, updateQuery}) => {
 
   const handleQueryChange = (newQuery: RuleGroupType) => {
     setQuery(newQuery);
-    const sqlQuery = formatQuery(newQuery, 'spel');
-    updateQuery(sqlQuery); // Llama a la función de actualización con la nueva query SQL
+    const spelQuery = formatQuery(newQuery, 'spel');
+    updateQuery(spelQuery);
   };
   console.log(formatQuery(query, 'sql'))
   return (
-    <div>
+    <div className='overflow-auto'>
        <QueryBuilder controlClassnames={{ queryBuilder: 'queryBuilder-branches ruleGroup-body' }} fields={fields} query={query} onQueryChange={handleQueryChange} />
     </div>
   )

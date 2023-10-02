@@ -1,37 +1,25 @@
 import 'reactflow/dist/style.css';
 import useStore from '../../store/store';
 import ReactFlow, { Background, Controls, MiniMap, Node, NodeTypes, ReactFlowInstance } from 'reactflow';
-import InputNode from './Nodes/InputNode';
-import React, { useCallback, useRef, useState } from 'react';
-import PanelTypes from '../panels/PanelTypes';
-import InputModal from '../modals/InputModal';
-import DefaultNode from './Nodes/DefaultNode';
-import DefaultModal from '../modals/DefaultModal';
-import OutputNode from './Nodes/OutputNode';
-import OutputModal from '../modals/OutputModal';
-import TimeModal from '../modals/TimeModal';
-import TimeNode from './Nodes/TimeNode';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import BranchNode from './Nodes/BranchNode';
-import BranchModal from '../modals/BranchModal';
+import AddNodes from '../panels/AddNodes';
+import { useTheme } from '@mui/material';
+import UpdateModal from '../modals/UpdateModal';
+import { getAllNodes, getUniqueNodeId, initNode } from '../../utils/helper';
+import CustomNode from './CustomNode';
 
 const nodeTypes: NodeTypes = {
-  inputNode: InputNode,
-  defaultNode: DefaultNode,
-  outputNode: OutputNode,
-  timeNode: TimeNode,
   branchNode: BranchNode,
+  customNode: CustomNode
 }
 
-let id = 0;
-const getId = () => `Node_${id++}`;
-
 const FlowPanel = () => {
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode, conversionToXstateCode } = useStore();
+  const theme = useTheme();
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode } = useStore();
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
-
-  console.log(nodes)
-
+  const [nodesData, setNodesData] = useState([]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -43,64 +31,26 @@ const FlowPanel = () => {
       event.preventDefault();
 
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
+      let type = event.dataTransfer.getData('application/reactflow');
 
       if (typeof type === 'undefined' || !type) {
         return;
       }
+      type = JSON.parse(type)
 
       const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
 
-      interface CustomNode extends Node {
-        data: {
-          label: string;
-          description?: string;
-          trigger?: string;
-          variables?: [];
-          time?: {
-            units: string,
-            value: string
-          };
-          query?: [];
-          childNodeCount?: number;
-        }
-      }
+      const newNodeId = getUniqueNodeId(type, reactFlowInstance?.getNodes())
 
-      const baseNode: CustomNode = {
-        id: getId(),
-        type,
+      const newNode: Node = {
+        id: newNodeId,
         position,
-        data: {
-          label: `Node ${id}`,
-        },
-        style: {
-          background: '#27282c',
-          borderRadius: '6px',
-          border: 'solid 1px #6f62e8',
-        },
-      }
-
-      if (type === 'inputNode') {
-        baseNode.data.description = '';
-        baseNode.data.variables = [];
-        baseNode.data.trigger = ''
-      } else if (type === 'defaultNode' || type === 'outputNode') {
-        baseNode.data.description = '';
-        baseNode.data.variables = [];
-      } else if (type === 'tymeNode') {
-        baseNode.data.time = {
-          units: '',
-          value: '',
-        };
-      } else {
-        baseNode.data.query = [];
-        baseNode.data.childNodeCount = 0;
-      }
-
-      const newNode = { ...baseNode };
+        type: 'customNode',
+        data: initNode(type, newNodeId)
+      };
       addNode(newNode)
 
     },
@@ -112,13 +62,17 @@ const FlowPanel = () => {
     selectNode(node);
   };
 
-  const handleConversionXstateCode = (event: React.MouseEvent) => {
-    event.preventDefault();
-    conversionToXstateCode()
-  }
+  useEffect(() => {
+    const fetchNodes = async () => {
+      const allNodes = await getAllNodes();
+      setNodesData(allNodes);
+    };
 
+    fetchNodes();
+  }, []);
+console.log(nodes)
   return (
-    <div className="flex w-full h-full items-center gap-2" ref={reactFlowWrapper}>
+    <div className="flex w-full h-full items-center gap-2" ref={reactFlowWrapper} style={{ backgroundColor: theme.palette.background.default }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -133,20 +87,10 @@ const FlowPanel = () => {
       >
         <MiniMap />
         <Background />
+        <AddNodes nodesData={nodesData} />
         <Controls className='bg-white' />
       </ReactFlow>
-      <hr className="border-r-2 border-gray-500 h-5/6" />
-      <div className='h-screen px-4 flex flex-col items-center justify-center gap-3'>
-        <div className='py-4 border rounded-lg border-[#6f62e8] w-64 overflow-hidden'>
-          <PanelTypes />
-          <button onClick={handleConversionXstateCode}>convert</button>
-        </div>
-        <InputModal />
-        <DefaultModal />
-        <OutputModal />
-        <TimeModal />
-        <BranchModal />
-      </div>
+      <UpdateModal />
     </div>
   )
 }

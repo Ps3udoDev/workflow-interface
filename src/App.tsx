@@ -1,13 +1,21 @@
-import {ReactFlowProvider} from 'reactflow'
-import FlowPanel from './components/reactFlow/FlowPanel'
+import { useState, useEffect } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme, darkTheme } from './themes';
+import { ReactFlowProvider } from 'reactflow';
+import FlowPanel from './components/reactFlow/FlowPanel';
 import useStore from './store/store';
-import { useEffect } from 'react';
+import Header from './components/common/Header';
 
 const App = () => {
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   useEffect(() => {
     const storedNodes = localStorage.getItem('nodes');
     const storedEdges = localStorage.getItem('edges');
-
     if (storedNodes && storedEdges) {
       useStore.setState({
         nodes: JSON.parse(storedNodes),
@@ -15,17 +23,18 @@ const App = () => {
       });
     }
   }, []);
-  return (
-    <>
-    <div className='bg-[#1c1d1f]'>
-      <ReactFlowProvider>
-        <div className='border-2 border-blue-600 m-auto items-center justify-center w-full h-screen'>
-          <FlowPanel />
-        </div>
-      </ReactFlowProvider>
-    </div>
-    </>
-  )
-}
 
-export default App
+  return (
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <div className="flex flex-col h-screen">
+        <Header toggleDarkMode={toggleDarkMode} />
+
+        <ReactFlowProvider>
+          <FlowPanel />
+        </ReactFlowProvider>
+      </div>
+    </ThemeProvider>
+  );
+};
+
+export default App;
