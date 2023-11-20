@@ -3,6 +3,12 @@ export type queryType = {
   query: string;
 }
 
+export type mailDataType = {
+  to: string[],
+  subject: string
+  html: string,
+}
+
 
 export type StateNode = {
   type: string;

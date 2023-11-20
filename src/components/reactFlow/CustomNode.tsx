@@ -227,18 +227,73 @@ const CustomNode: FunctionComponent<NodeProps> = memo(({ data, isConnectable }) 
                 />
               </>
             )}
+            {data.type === 'SendMail' && (
+              <>
+                <Divider />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: 1,
+                    paddingY: 1,
+                    width: '100%'
+                  }}
+                >
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      paddingX: 1,
+                      fontSize: 12
+                    }}
+                  >
+                    <span>To:</span>{data?.mailData.to}
+                  </Typography>
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      paddingX: 1,
+                      fontSize: 12
+                    }}
+                  >
+                    <span>Subject:</span>{data?.mailData.subject}
+                  </Typography>
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      paddingX: 1,
+                      fontSize: 12
+                    }}
+                  >
+                    <span>body:</span>{data?.mailData.html}
+                  </Typography>
+                </Box>
+              </>
+            )}
+
             {
-              data.type === 'Branch' ? (
+              data.type === 'Branch' && (
                 <>
                   <Button sx={{ borderRadius: 25, width: '75%', marginY: '1rem', fontSize: '12px' }} variant='outlined' onClick={onDialogClicked}>
                     Add Condition
                   </Button>
                 </>
-              ) : (<>
-                <Button sx={{ borderRadius: 25, width: '75%', marginY: '1rem', fontSize: '12px' }} variant='outlined' onClick={onDialogClicked}>
-                  Additional Parameters
-                </Button>
-              </>)
+              )
+            }
+            {
+              data.type === 'SendMail' && (
+                <>
+                  <Button sx={{ borderRadius: 25, width: '75%', marginY: '1rem', fontSize: '12px' }} variant='outlined' onClick={onDialogClicked}>
+                    Add Mail Properties
+                  </Button>
+                </>
+              )
+            }
+            {(data.type !== 'Branch' && data.type !== 'SendMail') && (<>
+              <Button sx={{ borderRadius: 25, width: '75%', marginY: '1rem', fontSize: '12px' }} variant='outlined' onClick={onDialogClicked}>
+                Additional Parameters
+              </Button>
+            </>)
             }
           </Box>
         </LightTooltip>

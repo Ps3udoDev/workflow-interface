@@ -2,7 +2,7 @@ import { queryType } from "./types"
 
 export type NodeParamsType = | 'options' | 'string' | 'number' | 'boolean' | 'password' | 'json' | 'code' | 'date' | 'file' | 'folder' | 'asyncOptions'
 
-export type CommonType = string | number | boolean | undefined | null
+export type CommonType = string | number | boolean | undefined | null | file
 
 export interface I_CommonObject {
   [key: string]: unknown | CommonType | I_CommonObject | CommonType[] | I_CommonObject[]
@@ -54,7 +54,10 @@ export interface I_NodeProperties {
   description?: string;
   variables?: I_CommonObject
   timeData?: I_CommonObject
+  mailData?: I_CommonObject
+  smsData?: I_CommonObject
   queryData?: queryType[]
+  voiceData?: any
   descriptionNode: string;
 }
 

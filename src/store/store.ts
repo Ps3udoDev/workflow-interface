@@ -76,7 +76,7 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
   duplicateNode: (nodeId: string) => {
     const originalNode = get().nodes.find((node) => node.id === nodeId);
     if (originalNode) {
-      const newNodeId = `${nodeId}-copy`; 
+      const newNodeId = `${nodeId}-copy`;
       const duplicatedNode: Node = {
         ...originalNode,
         id: newNodeId,
@@ -107,7 +107,7 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
     let combinedVariables: object = {};
 
     const allNodes = get().nodes;
-  
+
     allNodes.forEach((node) => {
       if (node.data && node.data.variables) {
         combinedVariables = {
@@ -116,7 +116,7 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
         };
       }
     });
-  
+
     return combinedVariables;
   },
   conversionToXstateCode: () => {
@@ -154,31 +154,28 @@ const useStore = createWithEqualityFn<RFState>((set, get) => ({
     nodes.forEach(node => {
       let nodeType = node.data.stateType;
 
-      if (node.type !== "branchNode" && outgoingConnections[node.id] === 0) {
+      if (node.data.type !== "Branch" && outgoingConnections[node.id] === 0) {
         nodeType = "final";
       }
 
-      if (node.type === "branchNode") {
+      if (node.data.type === "Branch") {
         states[node.id] = {
           type: nodeType,
           on: {
-            always: node.data.query.map(queryItem => {
+            always: node.data.queryData.map(queryItem => {
               const variable = queryItem.query.split(' ')[0];
               const condition = queryItem.query.split(' ').slice(1).join(' ');
               return {
                 target: queryTargetMap[`${node.id}_${queryItem.id}`],
-                //
-                //cond: `(context, event) => context.${variable} && event.${variable} ${condition}`
-                //query propertie
-                //
+                cond: `(context, event) => context.${variable} && context.${variable} ${condition}`
               };
             }).concat({ target: "defaultCond" })
           }
         };
-      } else if (node.type === "timeNode") {
+      } else if (node.data.type === "Time") {
         states[node.id] = {
           type: nodeType,
-          after: node.data.time ? { [node.data.time.milliseconds]: { target: targetMap[node.id] || 'some_default_state' } } : undefined,
+          after: node.data.timeData ? { [node.data.timeData.milliseconds]: { target: targetMap[node.id] || 'some_default_state' } } : undefined,
         };
       } else {
         states[node.id] = {

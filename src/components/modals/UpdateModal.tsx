@@ -6,7 +6,13 @@ import useStore from '../../store/store';
 import ReactJson, { OnCopyProps } from 'react-json-view';
 import useUpdateModal from '../../hooks/useUpdateModal';
 import QueryBuilderPanel from '../panels/QueryBuilderPanel';
-import { queryType } from '../../utils/types';
+import { mailDataType, queryType } from '../../utils/types';
+import { I_CommonObject } from '../../utils/interface';
+import axios from 'axios';
+
+interface UpdateModalProps {
+  nodeInstances: { [key: string]: any; }
+}
 
 interface NodeState {
   label: string;
@@ -19,6 +25,7 @@ interface NodeState {
     units: string;
     milliseconds: number;
   };
+  mailData?: mailDataType
   height?: number;
 }
 
@@ -29,12 +36,11 @@ interface Field {
 
 let id = 0;
 
-const UpdateModal = () => {
+const UpdateModal: React.FC<UpdateModalProps> = ({ nodeInstances }) => {
   const { selectedNode, updateNode, getAllNodeVariables } = useStore();
   const updateModal = useUpdateModal();
   const { handleSubmit, reset } = useForm();
   const [query, setQuery] = useState<string>('');
-
 
   const initialNodeState: NodeState = {
     label: selectedNode?.data.label || '',
@@ -47,16 +53,21 @@ const UpdateModal = () => {
       units: selectedNode?.data.time?.units || 'seconds',
       milliseconds: selectedNode?.data.time?.milliseconds || 0,
     },
+    mailData: {
+      to: selectedNode?.data.mailData?.to || [''],
+      subject: selectedNode?.data.mailData?.subject || '',
+      html: selectedNode?.data.mailData?.html || ''
+
+    },
     height: selectedNode?.height || 0
   };
 
   const [nodeState, setNodeState] = useState<NodeState>(initialNodeState);
   const [myValue, setMyValue] = useState(initialNodeState.variables || {});
 
-  const handleUpdateClick = handleSubmit(() => {
+  const handleUpdateClick = handleSubmit(async () => {
 
     if (selectedNode) {
-
       const { timeData } = nodeState;
       const updatedNode: Node = {
         ...selectedNode,
@@ -71,13 +82,36 @@ const UpdateModal = () => {
             units: timeData.units,
             milliseconds: timeData.milliseconds,
           },
+          mailData: nodeState.mailData
         },
         hidden: nodeState.hidden,
       };
       updateNode(updatedNode);
+      if (selectedNode.data.name === 'sendMailNode') {
+        try {
+          const response = await sendMail(nodeState.mailData);
+          console.log(response);
+        } catch (error) {
+          console.error(error);
+        }
+      }
     }
   });
 
+
+  async function sendMail(mailData: I_CommonObject) {
+    console.log('this is the maildata in updateMOdal\n', mailData)
+    try {
+      const response = await axios({
+        method: 'get',
+        url: 'http://localhost:3000/send-mail',
+        data: JSON.stringify(mailData)
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error al enviar el correo: ${error.message}`);
+    }
+  }
   const onChange = (open: boolean) => {
     if (!open) {
       reset();
@@ -119,7 +153,6 @@ const UpdateModal = () => {
   }
 
   const parentNodesVariables = getAllNodeVariables();
-  console.log('this is parentNodesVariables,\n', parentNodesVariables)
   const fields: Field[] = convertVariablesToFields(parentNodesVariables);
 
   const onClipboardCopy = (e: OnCopyProps) => {
@@ -167,6 +200,38 @@ const UpdateModal = () => {
     setNodeState({ ...nodeState, timeData: updatedTime });
   };
 
+  const handleMailToChange = (value: string) => {
+    setNodeState(prevState => ({
+      ...prevState,
+      mailData: {
+        ...prevState.mailData,
+        to: [value, ...prevState.mailData.to.slice(1)]
+      }
+    }));
+  };
+
+
+  const handleMailSubjectChange = (value: string) => {
+    setNodeState(prevState => ({
+      ...prevState,
+      mailData: {
+        ...prevState.mailData,
+        subject: value
+      }
+    }));
+  };
+
+  const handleMailHtmlChange = (value: string) => {
+    setNodeState(prevState => ({
+      ...prevState,
+      mailData: {
+        ...prevState.mailData,
+        html: value
+      }
+    }));
+  };
+
+
   useEffect(() => {
     const updatedNodeState: NodeState = {
       label: selectedNode?.data.label || '',
@@ -178,6 +243,12 @@ const UpdateModal = () => {
         value: selectedNode?.data.time?.value || 0,
         units: selectedNode?.data.time?.units || 'seconds',
         milliseconds: selectedNode?.data.time?.milliseconds || 0,
+      },
+      mailData: {
+        to: selectedNode?.data.mailData?.to || [''],
+        subject: selectedNode?.data.mailData?.subject || '',
+        html: selectedNode?.data.mailData?.html || ''
+
       },
       height: selectedNode?.height || 0
     };
@@ -193,18 +264,24 @@ const UpdateModal = () => {
       onChange={onChange}
     >
       <form onSubmit={handleUpdateClick} className='flex flex-col w-auto max-h-[600px] h-auto'>
-        <div className='py-2 px-6 flex flex-col gap-1 items-start justify-center'>
-          <label htmlFor="label" className='text-sm font-semibold text-white'>
-            Node Name:
-          </label>
-          <input
-            className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full rounded-md h-8'
-            type="text"
-            onChange={(evt) => (setNodeState({ ...nodeState, label: evt.target.value }))}
-            placeholder={selectedNode?.data['label']} />
+        {
+          (selectedNode?.data.type !== 'SendMail' && selectedNode?.data.type !== 'Branch') && (
+            <>
+              <div className='py-2 px-6 flex flex-col gap-1 items-start justify-center'>
+                <label htmlFor="label" className='text-sm font-semibold text-white'>
+                  Node Name:
+                </label>
+                <input
+                  className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full rounded-md h-8'
+                  type="text"
+                  onChange={(evt) => (setNodeState({ ...nodeState, label: evt.target.value }))}
+                  placeholder={selectedNode?.data['label']} />
 
-        </div>
-        {(selectedNode?.data.type !== 'Time' && selectedNode?.data.type !== 'Branch') && (
+              </div>
+            </>
+          )
+        }
+        {(selectedNode?.data.type !== 'Time' && selectedNode?.data.type !== 'Branch' && selectedNode?.data.type !== 'SendMail') && (
           <>
             <div className='w-[550px]'>
               <div className='py-2 px-6 flex  items-center justify-start gap-3'>
@@ -298,17 +375,54 @@ const UpdateModal = () => {
           )
         }
         {
-          selectedNode?.data.type !== 'Branch' ? (
+          selectedNode?.data.type === 'SendMail' && (
+            <>
+              <div className='py-2 px-6 flex flex-col gap-1 items-start justify-center'>
+                <label htmlFor="label" className='text-sm font-semibold text-white'>
+                  To:
+                </label>
+                <input
+                  className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full rounded-md h-8'
+                  type="text"
+                  onChange={(evt) => handleMailToChange(evt.target.value)}
+                  placeholder={selectedNode?.data['mailData']['to']} />
+              </div>
+              <div className='py-2 px-6 flex flex-col gap-1 items-start justify-center'>
+                <label htmlFor="label" className='text-sm font-semibold text-white'>
+                  Subject:
+                </label>
+                <input
+                  className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full rounded-md h-8'
+                  type="text"
+                  onChange={(evt) => handleMailSubjectChange(evt.target.value)}
+                  placeholder={selectedNode?.data['mailData']['subject']} />
+              </div>
+              <div className='py-2 px-6 flex flex-col gap-1 items-start justify-center'>
+                <label htmlFor="label" className='text-sm font-semibold text-white'>
+                  HTML:
+                </label>
+                <textarea
+                  className='bg-[#353535] text-white text-sm focus:outline-none focus:border-b border-[#6f62e8] w-full rounded-md h-8'
+                  onChange={(evt) => handleMailHtmlChange(evt.target.value)}
+                  placeholder={selectedNode?.data['mailData']['html']} />
+              </div>
+            </>
+          )
+        }
+        {
+          selectedNode?.data.type !== 'Branch' && (
             <div className='flex flex-col gap-2 py-2'>
               <button className='text-white bg-[#6f62e8] rounded-xl w-36 m-auto'>Update Node</button>
             </div>
-          ) : (
+          )}
+
+        {
+          selectedNode?.data.type === 'Branch' && (
             <div className='flex flex-col gap-2 py-2'>
               <button onClick={onAddClick} className='text-white bg-[#6f62e8] rounded-xl w-36 m-auto'>Add Query</button>
             </div>
           )
         }
-
       </form>
     </Modal>
   );

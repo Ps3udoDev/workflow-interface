@@ -1,4 +1,5 @@
 import { Node } from 'reactflow';
+import { SendMail_Node } from '../components/reactFlow/nodes-types/';
 
 export async function getAllNodes() {
   const nodesClasses = await import('../components/reactFlow/nodes-types/');
@@ -6,7 +7,9 @@ export async function getAllNodes() {
     nodesClasses.Input_Node,
     nodesClasses.Default_Node,
     nodesClasses.Time_Node,
-    nodesClasses.Branch_Node
+    nodesClasses.Branch_Node,
+    nodesClasses.SendMail_Node,
+    nodesClasses.SendVoiceNode
   ];
 
   const instances = classes.map(NodeClass => new NodeClass());
@@ -65,7 +68,13 @@ export const initNode = (nodeData, newNodeId) => {
       inputAnchors.push(newInput)
     }
   }
-
+  let instance;
+  switch (nodeData.name) {
+    case 'sendMailNode':
+      instance = new SendMail_Node();
+      break;
+    // ... (otros casos para otros tipos de nodos si los tienes)
+  }
   if (nodeData.credential) {
     const newInput = {
       ...nodeData.credential,
@@ -141,5 +150,5 @@ export const initNode = (nodeData, newNodeId) => {
 
   nodeData.id = newNodeId
 
-  return nodeData
+  return { nodeData: nodeData, instance: instance };
 }

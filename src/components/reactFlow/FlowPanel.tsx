@@ -2,7 +2,6 @@ import 'reactflow/dist/style.css';
 import useStore from '../../store/store';
 import ReactFlow, { Background, Controls, MiniMap, Node, NodeTypes, ReactFlowInstance } from 'reactflow';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import BranchNode from './Nodes/BranchNode';
 import AddNodes from '../panels/AddNodes';
 import { useTheme } from '@mui/material';
 import UpdateModal from '../modals/UpdateModal';
@@ -10,7 +9,6 @@ import { getAllNodes, getUniqueNodeId, initNode } from '../../utils/helper';
 import CustomNode from './CustomNode';
 
 const nodeTypes: NodeTypes = {
-  branchNode: BranchNode,
   customNode: CustomNode
 }
 
@@ -20,6 +18,8 @@ const FlowPanel = () => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const [nodesData, setNodesData] = useState([]);
+  const [nodeInstances, setNodeInstances] = useState<{ [key: string]: any }>({});
+
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -45,14 +45,15 @@ const FlowPanel = () => {
 
       const newNodeId = getUniqueNodeId(type, reactFlowInstance?.getNodes())
 
+      const { nodeData, instance } = initNode(type, newNodeId);
       const newNode: Node = {
         id: newNodeId,
         position,
         type: 'customNode',
-        data: initNode(type, newNodeId)
+        data: nodeData
       };
-      addNode(newNode)
-
+      setNodeInstances(prev => ({ ...prev, [newNodeId]: instance }));
+      addNode(newNode);
     },
     [addNode, reactFlowInstance]
   );
@@ -70,7 +71,9 @@ const FlowPanel = () => {
 
     fetchNodes();
   }, []);
-console.log(nodes)
+
+
+  console.log(nodes)
   return (
     <div className="flex w-full h-full items-center gap-2" ref={reactFlowWrapper} style={{ backgroundColor: theme.palette.background.default }}>
       <ReactFlow
@@ -90,7 +93,7 @@ console.log(nodes)
         <AddNodes nodesData={nodesData} />
         <Controls className='bg-white' />
       </ReactFlow>
-      <UpdateModal />
+      <UpdateModal nodeInstances={nodeInstances}/>
     </div>
   )
 }
